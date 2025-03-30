@@ -1,81 +1,17 @@
 #include <hardware/gpio.h>
 #include <hardware/clocks.h>
 
-// Pico pin usage definitions
-
-#define A0_PIN    0
-#define A1_PIN    1
-#define A2_PIN    2
-#define A3_PIN    3
-#define A4_PIN    4
-#define A5_PIN    5
-#define A6_PIN    6
-#define A7_PIN    7
-#define A8_PIN    8
-#define A9_PIN    9
-#define A10_PIN  10
-#define A11_PIN  11
-#define A12_PIN  12
-#define A13_PIN  13
-#define A14_PIN  14
-#define A15_PIN  15
-#define D0_PIN   16
-#define D1_PIN   17
-#define D2_PIN   18
-#define D3_PIN   19
-#define D4_PIN   20
-#define D5_PIN   21
-#define D6_PIN   22
-#define D7_PIN   23
-#define MEMR_PIN  24
-#define MEMW_PIN  25
-#define MREQ_PIN  26
-#define CEROM2_PIN  27
-#define DSRAM_PIN  28
-#define IOR_PIN  29
-
 // Pico pin usage masks
-
-#define A0_PIN_MASK     0x00000001L
-#define A1_PIN_MASK     0x00000002L
-#define A2_PIN_MASK     0x00000004L
-#define A3_PIN_MASK     0x00000008L
-#define A4_PIN_MASK     0x00000010L
-#define A5_PIN_MASK     0x00000020L
-#define A6_PIN_MASK     0x00000040L
-#define A7_PIN_MASK     0x00000080L
-#define A8_PIN_MASK     0x00000100L
-#define A9_PIN_MASK     0x00000200L
-#define A10_PIN_MASK    0x00000400L
-#define A11_PIN_MASK    0x00000800L
-#define A12_PIN_MASK    0x00001000L
-#define A13_PIN_MASK    0x00002000L
-#define A14_PIN_MASK    0x00004000L
-#define A15_PIN_MASK    0x00008000L
-#define D0_PIN_MASK     0x00010000L
-#define D1_PIN_MASK     0x00020000L
-#define D2_PIN_MASK     0x00040000L
-#define D3_PIN_MASK     0x00080000L
-#define D4_PIN_MASK     0x00100000L
-#define D5_PIN_MASK     0x00200000L  // gpio 21
-#define D6_PIN_MASK     0x00400000L
-#define D7_PIN_MASK     0x00800000L
-
 #define MEMR_PIN_MASK   0x01000000L //gpio 24
 #define MEMW_PIN_MASK   0x02000000L
 #define MREQ_PIN_MASK   0x04000000L  //gpio 26
-#define CEROM2_PIN_MASK 0x08000000L
-#define DSRAM_PIN_MASK  0x10000000L
-#define IOR_PIN_MASK    0x20000000L
 
 // Aggregate Pico pin usage masks
 #define ALL_GPIO_MASK  	0x3FFFFFFFL
 #define BUS_PIN_MASK    0x0000FFFFL
 #define DATA_PIN_MASK   0x00FF0000L
 #define FLAG_MASK       0x2F000000L
-#define ROM_MASK ( MREQ_PIN_MASK  )
 #define ALWAYS_IN_MASK  (BUS_PIN_MASK | FLAG_MASK)
-#define ALWAYS_OUT_MASK (DATA_PIN_MASK | DOUTE_PIN_MASK)
 
 #define SET_DATA_MODE_OUT   gpio_set_dir_out_masked(DATA_PIN_MASK)
 #define SET_DATA_MODE_IN    gpio_set_dir_in_masked(DATA_PIN_MASK)
@@ -135,7 +71,7 @@ void __not_in_flash_func(run)() {
         }
         else if (!(pins & MEMW_PIN_MASK)) {
             const uint8_t value = (gpio_get_all() & DATA_PIN_MASK) >> 16;
-            // ROM[address] = (gpio_get_all() & DATA_PIN_MASK) >> 16;
+
             const uint8_t page = value & 0x1f; // todo check rom size
             switch (address) {
                 // Rom select from our menu
