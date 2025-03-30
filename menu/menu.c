@@ -17,7 +17,7 @@ __sfr __at 0x7F PSGPort;
 
 volatile unsigned char __at(0xfff) selected; // Write ROM index here to launch it from RP2040
 
-#define ITEMS_PER_PAGE 18
+#define ITEMS_PER_PAGE 15
 #define ROM_NUMBER 18*2
 #define ROM_NAME_LENGTH 31
 // ROM-stored Menu data:
@@ -25,7 +25,7 @@ volatile unsigned char __at(0xfff) selected; // Write ROM index here to launch i
 // 0x4000 -- total menu items
 // 0x4001 -- 31byte for each menu item with \0
 const __at(0x4000) unsigned char menu_item_num = ROM_NUMBER;
-#if 1
+#if 0
 const __at(0x4001) unsigned char menu_items[16384] = { 0 };
 #else
 const char menu_items[] = {
@@ -86,18 +86,18 @@ void SG_print(const unsigned char *str) {
 
 #define SG_printatXY(x,y, str) do{SG_setNextTileatXY(x,y); SG_print(str);}while(0)
 
-static void draw_pointer(unsigned char y) {
+static void draw_pointer(const unsigned char y) {
     SG_initSprites();
     SG_addSprite(4, (8 * 4) + y * 8, 0, SG_COLOR_CYAN);
     SG_finalizeSprites();
     SG_copySpritestoSAT();
 }
 
-void draw_page(unsigned char page) {
+void draw_page(const unsigned char page) {
     // clear items from 5 row
     SG_VRAMmemset(0x1800 + (4 << 5), 0, 32 * ITEMS_PER_PAGE);
 
-    unsigned char start = page * ITEMS_PER_PAGE;
+    const unsigned char start = page * ITEMS_PER_PAGE;
     unsigned char end = (page + 1) * ITEMS_PER_PAGE;
     if (end > menu_item_num) end = menu_item_num;
 
@@ -195,15 +195,22 @@ void main(void) {
     unsigned int keys, previous_keys = 0;
     unsigned int selected_menu_item = 0;
     unsigned char current_page = 0;
+    unsigned int vsync_counter = 0;
+
+#define repeat_delay 10
     play_jingle();
     while (1) {
-
         keys = SG_getKeysStatus();
 
+        const unsigned int items_in_page = (menu_item_num - current_page * ITEMS_PER_PAGE) > ITEMS_PER_PAGE ? ITEMS_PER_PAGE : (menu_item_num - current_page * ITEMS_PER_PAGE);
+        if (selected_menu_item >= items_in_page) {
+            selected_menu_item = items_in_page - 1;
+        }
+
         // Up button pressed
-        if ((keys & PORT_A_KEY_UP) && !(previous_keys & PORT_A_KEY_UP)) {
+        if ((keys & PORT_A_KEY_UP) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_UP))) {
             if (selected_menu_item == 0)
-                selected_menu_item = menu_item_num - 1;
+                selected_menu_item = items_in_page - 1;
             else
                 selected_menu_item--;
 
@@ -211,25 +218,30 @@ void main(void) {
         }
 
         // Down button pressed
-        if ((keys & PORT_A_KEY_DOWN) && !(previous_keys & PORT_A_KEY_DOWN)) {
-            selected_menu_item = (selected_menu_item + 1) % menu_item_num;
+        if ((keys & PORT_A_KEY_DOWN) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_DOWN))) {
+            selected_menu_item = (selected_menu_item + 1) % items_in_page;
+
             draw_pointer(selected_menu_item);
         }
 
         // Right button pressed to go to the next page
-        if (keys & PORT_A_KEY_RIGHT && !(previous_keys & PORT_A_KEY_RIGHT)) {
+        if ((keys & PORT_A_KEY_RIGHT) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_RIGHT))) {
             if ((current_page + 1) * ITEMS_PER_PAGE < menu_item_num) {
                 current_page++;
+                selected_menu_item = 0;  // Reset selection to top of new page
+                draw_page(current_page);
+                draw_pointer(selected_menu_item);
             }
-            draw_page(current_page);
         }
 
         // Left button pressed to go to the previous page
-        if (keys & PORT_A_KEY_LEFT && !(previous_keys & PORT_A_KEY_LEFT)) {
+        if ((keys & PORT_A_KEY_LEFT) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_LEFT))) {
             if (current_page > 0) {
                 current_page--;
+                selected_menu_item = 0;  // Reset selection to top of new page
+                draw_page(current_page);
+                draw_pointer(selected_menu_item);
             }
-            draw_page(current_page);
         }
 
         if ((keys & PORT_A_KEY_START) && !(previous_keys & PORT_A_KEY_START)) {
@@ -237,8 +249,15 @@ void main(void) {
         }
         previous_keys = keys;
 
+        // Increment vsync_counter only if a key is being held
+        if (keys & (PORT_A_KEY_UP | PORT_A_KEY_DOWN | PORT_A_KEY_LEFT | PORT_A_KEY_RIGHT)) {
+            vsync_counter++;
+        } else {
+            vsync_counter = 0;
+        }
 
         SG_waitForVBlank();
+
     }
 }
 
