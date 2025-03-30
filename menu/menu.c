@@ -195,7 +195,7 @@ void main(void) {
     unsigned int keys, previous_keys = 0;
     unsigned int selected_menu_item = 0;
     unsigned char current_page = 0;
-    unsigned int vsync_counter = 0;
+    unsigned int key_hold_frame_counter = 0;
 
 #define repeat_delay 10
     play_jingle();
@@ -208,7 +208,7 @@ void main(void) {
         }
 
         // Up button pressed
-        if ((keys & PORT_A_KEY_UP) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_UP))) {
+        if ((keys & PORT_A_KEY_UP) && (key_hold_frame_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_UP))) {
             if (selected_menu_item == 0)
                 selected_menu_item = items_in_page - 1;
             else
@@ -218,14 +218,14 @@ void main(void) {
         }
 
         // Down button pressed
-        if ((keys & PORT_A_KEY_DOWN) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_DOWN))) {
+        if ((keys & PORT_A_KEY_DOWN) && (key_hold_frame_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_DOWN))) {
             selected_menu_item = (selected_menu_item + 1) % items_in_page;
 
             draw_pointer(selected_menu_item);
         }
 
         // Right button pressed to go to the next page
-        if ((keys & PORT_A_KEY_RIGHT) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_RIGHT))) {
+        if ((keys & PORT_A_KEY_RIGHT) && (key_hold_frame_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_RIGHT))) {
             if ((current_page + 1) * ITEMS_PER_PAGE < menu_item_num) {
                 current_page++;
                 selected_menu_item = 0;  // Reset selection to top of new page
@@ -235,7 +235,7 @@ void main(void) {
         }
 
         // Left button pressed to go to the previous page
-        if ((keys & PORT_A_KEY_LEFT) && (vsync_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_LEFT))) {
+        if ((keys & PORT_A_KEY_LEFT) && (key_hold_frame_counter % repeat_delay == 0 || !(previous_keys & PORT_A_KEY_LEFT))) {
             if (current_page > 0) {
                 current_page--;
                 selected_menu_item = 0;  // Reset selection to top of new page
@@ -251,9 +251,9 @@ void main(void) {
 
         // Increment vsync_counter only if a key is being held
         if (keys & (PORT_A_KEY_UP | PORT_A_KEY_DOWN | PORT_A_KEY_LEFT | PORT_A_KEY_RIGHT)) {
-            vsync_counter++;
+            key_hold_frame_counter++;
         } else {
-            vsync_counter = 0;
+            key_hold_frame_counter = 0;
         }
 
         SG_waitForVBlank();
