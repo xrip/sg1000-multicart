@@ -8,6 +8,11 @@ project(SD1000_cart C CXX ASM)
 
 set(CMAKE_BUILD_TYPE "MinSizeRel")
 
+set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/bin/")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIR}")
+
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
