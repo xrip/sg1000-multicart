@@ -25,7 +25,6 @@
 #include "hardware/timer.h"
 #include "hardware/structs/vreg_and_chip_reset.h"
 
-volatile uint8_t __uninitialized_ram(rom_index);
 uint8_t * ROM;
 volatile uint8_t *rom_slot1;
 volatile uint8_t *rom_slot2;
@@ -76,7 +75,6 @@ void __not_in_flash_func(run)() {
             switch (address) {
                 // Rom select from our menu
                 case 0xFFF:
-                    rom_index = value;
                     memcpy(ROM, roms[value].data, roms[value].size);
                     reset_sega();
                     break;
