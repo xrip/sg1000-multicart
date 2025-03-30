@@ -4,6 +4,12 @@ https://github.com/aotta/SD-1000 and uses it's PCB
 
 A no-frills multicart for Sega SG-1000, Mark III, and Master System consoles using only an RP2040 microcontroller - no additional chips required!
 
+<img src="https://github.com/user-attachments/assets/464cbf84-1d90-4057-8292-5187f595db08" width=320 title="PCB">
+<img src="https://github.com/user-attachments/assets/e712d3bf-6053-4898-b444-dedaf743890b" width=320 title="PCB">
+<img src="https://github.com/user-attachments/assets/7d42dae0-67b6-4af8-8a5c-81651caf9fc2" width=320 title="PCB">
+<br >
+<img src="https://github.com/user-attachments/assets/8102cc56-c14c-49dd-b44a-d6879187a02a" width=320 title="PCB">
+
 ## Features
 
 - Works with Sega SG-1000, Mark III, and PAL Master System consoles
