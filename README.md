@@ -77,6 +77,37 @@ You can use and breadboard PCB with 2.54 connector with following wiring:
 | DSRAM  | GPIO 28     |
 | IOR    | GPIO 29     |
 
+## Adding ROM Files
+
+The project includes a Python script that automatically processes ROM files and generates the necessary C header file. Follow these steps to add your own games:
+
+1. Place your Sega ROM files (`.sg` for SG-1000 or `.sms` for Master System ROMs) in the `roms/` directory
+2. Run the provided Python script from the `roms/` directory:
+   ```
+   cd roms
+   python make.py
+   ```
+3. The script will:
+   - Scan for all `.sg` and `.sms` files in the directory
+   - Generate a `roms.h` header file containing all ROM data
+   - Format filenames to fit in the menu
+   - Calculate the appropriate sizes for each ROM
+
+### Script Details
+
+The script automatically:
+- Formats each filename to fit the 30-character limit in the menu
+- Converts ROM binary data to C arrays
+- Creates a structured array of all ROMs with their metadata
+- Sets the ROM count for the menu system
+
+If you need to customize the ROM generation process, you can modify the `make.py` script. The key parameters are:
+- `FILENAME_LENGTH`: Maximum length for displaying ROM names (default: 30)
+- ROM file extensions: Currently set to `.sg` and `.sms`
+
+## Building menu rom
+Follow the instructions and install [devkitSMS](https://github.com/sverx/devkitSMS/) then run ``make`` from menu directory.
+
 ## Building the Project
 
 1. Clone this repository
