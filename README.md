@@ -4,11 +4,12 @@ https://github.com/aotta/SD-1000 and uses it's PCB
 
 A no-frills multicart for Sega SG-1000, Mark III, and Master System consoles using only an RP2040 microcontroller - no additional chips required!
 
-<img src="https://github.com/user-attachments/assets/464cbf84-1d90-4057-8292-5187f595db08" width=320 title="PCB">
-<img src="https://github.com/user-attachments/assets/e712d3bf-6053-4898-b444-dedaf743890b" width=320 title="PCB">
-<img src="https://github.com/user-attachments/assets/7d42dae0-67b6-4af8-8a5c-81651caf9fc2" width=320 title="PCB">
-<br >
-<img src="https://github.com/user-attachments/assets/8102cc56-c14c-49dd-b44a-d6879187a02a" width=320 title="PCB">
+<img src="https://github.com/user-attachments/assets/8102cc56-c14c-49dd-b44a-d6879187a02a" width="30%" title="PCB">
+<br />
+<img src="https://github.com/user-attachments/assets/464cbf84-1d90-4057-8292-5187f595db08" width="24%">
+<img src="https://github.com/user-attachments/assets/e712d3bf-6053-4898-b444-dedaf743890b" width="24%">
+<img src="https://github.com/user-attachments/assets/7d42dae0-67b6-4af8-8a5c-81651caf9fc2" width="24%">
+
 
 ## Features
 
@@ -55,6 +56,7 @@ The script automatically:
 - Sets the ROM count for the menu system
 
 ## Hardware Requirements
+<img src="https://github.com/user-attachments/assets/c97439f3-23a0-4c32-8120-686356c142d4" width="100%" title="RP2040 PURPLE">
 
 - PURPLE chinese RP2040 clone that have pins 23,25 and 29 available, offical green or other black chinese RP2040s wont work in case of different pinout
 - Diode
