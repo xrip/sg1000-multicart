@@ -25,7 +25,7 @@ volatile unsigned char __at(0xfff) selected; // Write ROM index here to launch i
 // 0x4000 -- total menu items
 // 0x4001 -- 31byte for each menu item with \0
 const __at(0x4000) unsigned char menu_item_num = ROM_NUMBER;
-#if 0
+#if 1
 const __at(0x4001) unsigned char menu_items[16384] = { 0 };
 #else
 const char menu_items[] = {
@@ -107,7 +107,7 @@ void draw_page(const unsigned char page) {
 }
 
 static void setup(void) {
-    SG_VRAMmemsetW(0, 0x0000, 8192);
+//    SG_VRAMmemsetW(0, 0x0000, 8192);
     SG_setBackdropColor(SG_COLOR_BLACK);
 
     SG_loadTilePatterns(sms_sg1000_cart_logo, 1, 192);
@@ -118,9 +118,9 @@ static void setup(void) {
 
     // SG_loadTileColours but not uses rom
     // sega logo
-    SG_VRAMmemset(0x2000, SG_COLOR_LIGHT_BLUE << 4, 224);
+    SG_VRAMmemset(0x2000, SG_COLOR_LIGHT_BLUE << 4, 200);
     /// rest of screen
-    SG_VRAMmemset(0x2000 + 224, 0xF1, (1920 * 3) - 224);
+    SG_VRAMmemset(0x2000 + 200, 0xF1, (1920 * 3) - 200);
 
     SG_loadSpritePatterns(sprite_pointer, 0, 8);
 
