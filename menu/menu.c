@@ -107,7 +107,7 @@ void draw_page(const unsigned char page) {
 }
 
 static void setup(void) {
-//    SG_VRAMmemsetW(0, 0x0000, 8192);
+    SG_VRAMmemsetW(0, 0x0000, 8192);
     SG_setBackdropColor(SG_COLOR_BLACK);
 
     SG_loadTilePatterns(sms_sg1000_cart_logo, 1, 192);
@@ -118,9 +118,9 @@ static void setup(void) {
 
     // SG_loadTileColours but not uses rom
     // sega logo
-    SG_VRAMmemset(0x2000, SG_COLOR_LIGHT_BLUE << 4, 200);
+    SG_VRAMmemset(0x2000, SG_COLOR_LIGHT_BLUE << 4, 224);
     /// rest of screen
-    SG_VRAMmemset(0x2000 + 200, 0xF1, (1920 * 3) - 200);
+    SG_VRAMmemset(0x2000 + 224, 0xF1, (1920 * 3) - 224);
 
     SG_loadSpritePatterns(sprite_pointer, 0, 8);
 

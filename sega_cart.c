@@ -87,6 +87,8 @@ void __not_in_flash_func(run)() {
                 case 0xFFFF:
                     rom_slot3 = ROM + page * 0x4000 - 0x8000;
                 break;
+                // default:
+                    // ROM[address] = value;
             }
         }
     }
