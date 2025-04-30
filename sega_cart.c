@@ -20,12 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "menu_rom.h"
-#include "roms/roms.h"
+// #include "menu_rom.h"
+// #include "roms/roms.h"
 #include "hardware/timer.h"
 #include "hardware/structs/vreg_and_chip_reset.h"
+#include "rom.h"
 
-uint8_t * ROM;
+// extern uint8_t ROM[];
 volatile uint8_t *rom_slot1;
 volatile uint8_t *rom_slot2;
 volatile uint8_t *rom_slot3;
@@ -44,7 +45,7 @@ static void reset_sega() {
     }
 }
 
-void __not_in_flash_func(run)() {
+static inline void run() {
     while (1) {
         while (gpio_get_all() & MREQ_PIN_MASK); //memr = b5 mreq=b10
         const uint32_t pins = gpio_get_all(); // re-read for SG-1000;
@@ -74,10 +75,6 @@ void __not_in_flash_func(run)() {
             const uint8_t page = value & 0x1f; // todo check rom size
             switch (address) {
                 // Rom select from our menu
-                case 0xFFF:
-                    memcpy(ROM, roms[value].data, roms[value].size);
-                    reset_sega();
-                    break;
                 case 0xFFFD:
                     rom_slot1 = ROM + page * 0x4000;
                 break;
@@ -98,25 +95,7 @@ void __not_in_flash_func(run)() {
 void main() {
     hw_set_bits(&vreg_and_chip_reset_hw->vreg, VREG_AND_CHIP_RESET_VREG_VSEL_BITS);
     busy_wait_us(33);
-    set_sys_clock_khz(400 * 1000, true);
-
-    ROM = (uint8_t *) malloc(256 << 10);
-    memcpy(ROM, menu_rom, 16 << 10);
-
-    // recalc menu_rom checksum
-    unsigned int checksum = 0;
-    for (int i = 0; i<0x3ff0; i ++ ) {
-        checksum += menu_rom[i];
-    }
-    ROM[0x3ff0+10] = checksum & 0x00FF;
-    ROM[0x3ff0+11] = checksum >> 8;
-
-    // Update game list in menu_rom
-    #define ROM_NAME_LENGTH 31
-    ROM[0x4000] = rom_count;
-    for (int i = 0; i< rom_count; i++) {
-        memcpy(&ROM[0x4001 + i * ROM_NAME_LENGTH], roms[i].name, ROM_NAME_LENGTH);
-    }
+    set_sys_clock_khz(266 * 1000, true);
 
     gpio_init_mask(ALL_GPIO_MASK);
     gpio_set_dir_in_masked(ALWAYS_IN_MASK);

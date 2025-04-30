@@ -29,10 +29,10 @@ add_custom_target(rom_list COMMAND python make.py
 add_custom_target(menu_rom COMMAND make clean && make && python bin2c.py menu.sg ../menu_rom.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/menu
 )
-add_dependencies(${PROJECT_NAME} rom_list menu_rom)
-
+#add_dependencies(${PROJECT_NAME} rom_list menu_rom)
+#
 pico_define_boot_stage2(slower_boot ${PICO_DEFAULT_BOOT_STAGE2_FILE})
-target_compile_definitions(slower_boot PRIVATE PICO_FLASH_SPI_CLKDIV=4)
+target_compile_definitions(slower_boot PRIVATE PICO_FLASH_SPI_CLKDIV=2)
 pico_set_boot_stage2(${PROJECT_NAME} slower_boot)
 
 # 16megs of flash on purple pico clones
@@ -51,6 +51,7 @@ add_compile_options(-flto -fwhole-program -ffunction-sections -fdata-sections -O
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/sega_cart.c
+        ${CMAKE_CURRENT_LIST_DIR}/rom.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
