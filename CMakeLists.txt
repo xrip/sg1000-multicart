@@ -51,7 +51,6 @@ add_compile_options(-flto -fwhole-program -ffunction-sections -fdata-sections -O
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/sega_cart.c
-        ${CMAKE_CURRENT_LIST_DIR}/rom.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

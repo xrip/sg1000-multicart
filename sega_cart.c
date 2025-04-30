@@ -45,15 +45,16 @@ static void reset_sega() {
     }
 }
 
-static inline void run() {
+void __no_inline_not_in_flash_func(run)() {
+    register uint32_t pins;
+
     while (1) {
         while (gpio_get_all() & MREQ_PIN_MASK); //memr = b5 mreq=b10
-        const uint32_t pins = gpio_get_all(); // re-read for SG-1000;
+        pins = gpio_get_all(); // re-read for SG-1000;
         const uint16_t address = pins & BUS_PIN_MASK;
-        if (!(pins & MEMR_PIN_MASK)) {
-            uint8_t value;
-
-            if (address <= 1024) {
+        if (!(pins & MEMR_PIN_MASK) && address < sizeof(ROM)) {
+             const uint8_t value = ROM[address];
+            /*if (address <= 1024) {
                 value = ROM[address];
             } else if (address < 0x4000) {
                 value = rom_slot1[address];
@@ -63,13 +64,13 @@ static inline void run() {
                 value = rom_slot3[address];
             } else {
                 continue;
-            }
+            }*/
             SET_DATA_MODE_OUT;
             gpio_put_masked(DATA_PIN_MASK, value << 16);
             SET_DATA_MODE_IN;
 
         }
-        else if (!(pins & MEMW_PIN_MASK)) {
+        /*else if (false && !(pins & MEMW_PIN_MASK)) {
             const uint8_t value = (gpio_get_all() & DATA_PIN_MASK) >> 16;
 
             const uint8_t page = value & 0x1f; // todo check rom size
@@ -87,7 +88,7 @@ static inline void run() {
                 // default:
                     // ROM[address] = value;
             }
-        }
+        }*/
     }
 }
 

@@ -139,7 +139,7 @@ static void setup(void) {
     SG_printatXY(15, 1, "multicart");
     SG_printatXY(16, 2, "by xrip");
 
-    SG_printatXY(3, 23, "<< prev page $ next page >> ");
+    SG_printatXY(3, 23, "<< prev page $  next page >>");
 
     SG_displayOn();
 
@@ -187,6 +187,7 @@ static void play_jingle(void) {
     PSGPort = 0xDF;  // Mute Channel 3
     PSGPort = 0xFF;  // Mute Channel 3
 }
+
 
 
 void main(void) {
