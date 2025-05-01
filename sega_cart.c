@@ -27,15 +27,8 @@
 #include "rom.h"
 
 // extern uint8_t ROM[];
-volatile uint8_t *rom_slot1;
-volatile uint8_t *rom_slot2;
-volatile uint8_t *rom_slot3;
 
 static void reset_sega() {
-    rom_slot1 = ROM;
-    rom_slot2 = ROM;
-    rom_slot3 = ROM;
-
     for (int i = 0; i < 5; i++) {
         while (!(gpio_get_all() & MEMR_PIN_MASK));
         SET_DATA_MODE_OUT;
@@ -45,50 +38,74 @@ static void reset_sega() {
     }
 }
 
-void __no_inline_not_in_flash_func(run)() {
-    register uint32_t pins;
+/*
+static inline void update_slot(const uint8_t slot, const uint8_t page) {
+    const size_t offset = 0x4000 * page;
+
+    int i = slot * 16;
+
+    if (slot == 0) {
+        banks[0] = ROM;
+        i++;
+    }
+
+    for (; i < slot * 16 + 16; i++) {
+        banks[i] = ROM + offset + __fast_mul(i % rom_mask, 1024);
+    }
+}
+*/
+
+void __time_critical_func(run)() {
+    volatile uint8_t *banks[48];
+
+    const uint32_t rom_mask  = (sizeof(ROM) / 1024) - 1;
+    // UPDATE_SLOT(0,0);
+    // UPDATE_SLOT(1,1);
+    // UPDATE_SLOT(2,2);
+    for (int i = 0; i < 48; i++) {
+        banks[i] = ROM  + __fast_mul(i & rom_mask, 1024);
+    }
 
     while (1) {
         while (gpio_get_all() & MREQ_PIN_MASK); //memr = b5 mreq=b10
-        pins = gpio_get_all(); // re-read for SG-1000;
-        const uint16_t address = pins & BUS_PIN_MASK;
-        if (!(pins & MEMR_PIN_MASK) && address < sizeof(ROM)) {
-             const uint8_t value = ROM[address];
-            /*if (address <= 1024) {
-                value = ROM[address];
-            } else if (address < 0x4000) {
-                value = rom_slot1[address];
-            } else if (address < 0x8000) {
-                value = rom_slot2[address];
-            } else if (address < 0xC000) {
-                value = rom_slot3[address];
-            } else {
-                continue;
-            }*/
+        const uint32_t pins = gpio_get_all(); // re-read for SG-1000;
+        const uint16_t address = (uint16_t) pins;
+
+        if (!(pins & MEMR_PIN_MASK)  ) {
             SET_DATA_MODE_OUT;
-            gpio_put_masked(DATA_PIN_MASK, value << 16);
-            SET_DATA_MODE_IN;
-
-        }
-        /*else if (false && !(pins & MEMW_PIN_MASK)) {
-            const uint8_t value = (gpio_get_all() & DATA_PIN_MASK) >> 16;
-
-            const uint8_t page = value & 0x1f; // todo check rom size
-            switch (address) {
-                // Rom select from our menu
-                case 0xFFFD:
-                    rom_slot1 = ROM + page * 0x4000;
-                break;
-                case 0xFFFE:
-                    rom_slot2 = ROM + page * 0x4000 - 0x4000;
-                break;
-                case 0xFFFF:
-                    rom_slot3 = ROM + page * 0x4000 - 0x8000;
-                break;
-                // default:
-                    // ROM[address] = value;
+            const uint8_t bank = address >> 10;
+            if (bank < 48) {
+                gpio_put_masked(DATA_PIN_MASK, banks[bank][address & 1023] << 16);
             }
-        }*/
+            SET_DATA_MODE_IN;
+        } else if (!(pins & MEMW_PIN_MASK)) {
+            SET_DATA_MODE_IN;
+            volatile const uint8_t value = (uint8_t)(gpio_get_all() >> 16) & 0x1f;
+            uint8_t  * bank = ROM + (value << 14);
+            switch (address) {
+                case 0xFFFD: {
+                    #pragma GCC unroll(16)
+                    for (uint8_t i = 1; i < 16; i++) {
+                        banks[i] = bank + __fast_mul(i, 1024);
+                    }
+                    break;
+                }
+                case 0xFFFE: {
+                    #pragma GCC unroll(16)
+                    for (uint8_t i = 0; i < 16; i++) {
+                        banks[16 + i] = bank + __fast_mul(i, 1024);
+                    }
+                    break;
+                }
+                case 0xFFFF: {
+                    #pragma GCC unroll(16)
+                    for (uint8_t i = 0; i < 16; i++) {
+                        banks[32 + i] = bank + __fast_mul(i, 1024);
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
 
