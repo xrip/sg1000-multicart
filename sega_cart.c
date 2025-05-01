@@ -38,30 +38,10 @@ static void reset_sega() {
     }
 }
 
-/*
-static inline void update_slot(const uint8_t slot, const uint8_t page) {
-    const size_t offset = 0x4000 * page;
-
-    int i = slot * 16;
-
-    if (slot == 0) {
-        banks[0] = ROM;
-        i++;
-    }
-
-    for (; i < slot * 16 + 16; i++) {
-        banks[i] = ROM + offset + __fast_mul(i % rom_mask, 1024);
-    }
-}
-*/
-
 void __time_critical_func(run)() {
     volatile uint8_t *banks[48];
 
     const uint32_t rom_mask  = (sizeof(ROM) / 1024) - 1;
-    // UPDATE_SLOT(0,0);
-    // UPDATE_SLOT(1,1);
-    // UPDATE_SLOT(2,2);
     for (int i = 0; i < 48; i++) {
         banks[i] = ROM  + __fast_mul(i & rom_mask, 1024);
     }
@@ -80,8 +60,8 @@ void __time_critical_func(run)() {
             SET_DATA_MODE_IN;
         } else if (!(pins & MEMW_PIN_MASK)) {
             SET_DATA_MODE_IN;
-            volatile const uint8_t value = (uint8_t)(gpio_get_all() >> 16) & 0x1f;
-            uint8_t  *bank_offset = ROM + (value << 14);
+            volatile const uint8_t value = (uint8_t)(gpio_get_all() >> 16) ;
+            uint8_t  *bank_offset = ROM + ((value & 0x1f) << 14);
             switch (address) {
                 case 0xFFFD: {
                     #pragma GCC unroll(16)
@@ -111,8 +91,6 @@ void __time_critical_func(run)() {
 
 
 void main() {
-    hw_set_bits(&vreg_and_chip_reset_hw->vreg, VREG_AND_CHIP_RESET_VREG_VSEL_BITS);
-    busy_wait_us(33);
     set_sys_clock_khz(266 * 1000, true);
 
     gpio_init_mask(ALL_GPIO_MASK);
