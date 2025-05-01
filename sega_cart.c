@@ -81,26 +81,26 @@ void __time_critical_func(run)() {
         } else if (!(pins & MEMW_PIN_MASK)) {
             SET_DATA_MODE_IN;
             volatile const uint8_t value = (uint8_t)(gpio_get_all() >> 16) & 0x1f;
-            uint8_t  * bank = ROM + (value << 14);
+            uint8_t  *bank_offset = ROM + (value << 14);
             switch (address) {
                 case 0xFFFD: {
                     #pragma GCC unroll(16)
                     for (uint8_t i = 1; i < 16; i++) {
-                        banks[i] = bank + __fast_mul(i, 1024);
+                        banks[i] = bank_offset + __fast_mul(i, 1024);
                     }
                     break;
                 }
                 case 0xFFFE: {
                     #pragma GCC unroll(16)
                     for (uint8_t i = 0; i < 16; i++) {
-                        banks[16 + i] = bank + __fast_mul(i, 1024);
+                        banks[16 + i] = bank_offset + __fast_mul(i, 1024);
                     }
                     break;
                 }
                 case 0xFFFF: {
                     #pragma GCC unroll(16)
                     for (uint8_t i = 0; i < 16; i++) {
-                        banks[32 + i] = bank + __fast_mul(i, 1024);
+                        banks[32 + i] = bank_offset + __fast_mul(i, 1024);
                     }
                     break;
                 }
