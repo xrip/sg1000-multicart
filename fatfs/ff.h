@@ -301,6 +301,7 @@ typedef enum {
 /* FatFs Module Application Interface                           */
 /*--------------------------------------------------------------*/
 
+	LBA_t get_file_start_sector(FIL* fp);
 FRESULT f_open (FIL* fp, const TCHAR* path, BYTE mode);				/* Open or create a file */
 FRESULT f_close (FIL* fp);											/* Close an open file object */
 FRESULT f_read (FIL* fp, void* buff, UINT btr, UINT* br);			/* Read data from the file */

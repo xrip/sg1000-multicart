@@ -51,18 +51,30 @@ add_compile_options(-flto -fwhole-program -ffunction-sections -fdata-sections -O
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/sega_cart.c
+
+        ${CMAKE_CURRENT_LIST_DIR}/msc_disk.c
+        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
+        ${CMAKE_CURRENT_LIST_DIR}/fatfs_disk.c
+        ${CMAKE_CURRENT_LIST_DIR}/flash_fs.c
+        ${CMAKE_CURRENT_LIST_DIR}/fatfs/ff.c
+        ${CMAKE_CURRENT_LIST_DIR}/fatfs/ffunicode.c
+        ${CMAKE_CURRENT_LIST_DIR}/fatfs/diskio.c
+
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/
+        ${CMAKE_CURRENT_LIST_DIR}/fatfs
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
         pico_runtime
+        hardware_flash tinyusb_device pico_multicore
         -Wl,--wrap=atexit # size optimizations
 )
 
 # use custom linker script
-pico_set_linker_script(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/memmap_sd1000.ld)
+pico_set_linker_script(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/memmap.ld)
 
 
 # create map/bin/hex/uf2 file in addition to ELF.
