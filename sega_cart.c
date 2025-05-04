@@ -42,29 +42,14 @@ static void reset_sega() {
         SET_DATA_MODE_IN;
     }
 }
+
+uint8_t * ROM;
+uint32_t rom_mask;
+
 extern unsigned long flash_fs_get_FAT_sector(uint16_t fat_sector);
 [[noreturn]]  void __time_critical_func(run)() {
     volatile uint8_t *banks[48];
 
-    FATFS fs;
-    FIL file;
-    FRESULT res;
-    if (!fatfs_is_mounted()) {
-        mount_fatfs_disk();
-    }
-
-    const char pathname[256] = "spy.sms";
-
-    f_mount(&fs, "", 1);  // Mount default drive
-    FILINFO fileinfo;
-    f_stat(pathname, &fileinfo);
-
-    f_open(&file, pathname, FA_READ);
-
-
-    uint8_t * ROM = (uint8_t *) flash_fs_get_FAT_sector(get_file_start_sector(&file));
-
-    const uint32_t rom_mask  = (fileinfo.fsize / 1024) - 1;
     for (int i = 0; i < 48; i++) {
         banks[i] = ROM  + __fast_mul(i & rom_mask, 1024);
     }
@@ -74,14 +59,14 @@ extern unsigned long flash_fs_get_FAT_sector(uint16_t fat_sector);
         const uint32_t pins = gpio_get_all(); // re-read for SG-1000;
         const uint16_t address = (uint16_t) pins;
 
-        if (__builtin_expect(!(pins & MEMR_PIN_MASK),1)) {
+        if (!(pins & MEMR_PIN_MASK)) {
                 SET_DATA_MODE_OUT;
                 const uint8_t bank = address >> 10;
                 if (bank < 48) {
                     gpio_put_masked(DATA_PIN_MASK, banks[bank][address & 1023] << 16);
                 }
                 SET_DATA_MODE_IN;
-        } else if (__builtin_expect(!(pins & MEMW_PIN_MASK) && address >= 0xFFFD, 0)) {
+        } else if (!(pins & MEMW_PIN_MASK)) {
                 SET_DATA_MODE_IN;
                 volatile const uint8_t value = (uint8_t)(gpio_get_all() >> 16) ;
                 uint8_t  *bank_offset = ROM + ((value & 0x1f) << 14);
@@ -159,6 +144,27 @@ void main() {
 
     while (to_ms_since_boot(get_absolute_time()) < 200) {
         if (gpio_get(CEROM2_PIN)) {
+
+            FATFS fs;
+            FIL file;
+            FRESULT res;
+            if (!fatfs_is_mounted()) {
+                mount_fatfs_disk();
+            }
+
+            // const char pathname[256] = "rtype.sms";
+
+            f_mount(&fs, "", 1);  // Mount default drive
+            FILINFO fileinfo;
+            f_stat("rtype.sms", &fileinfo);
+
+            f_open(&file, "rtype.sms", FA_READ);
+
+
+            ROM = (uint8_t *) flash_fs_get_FAT_sector(get_file_start_sector(&file));
+
+            rom_mask  = (fileinfo.fsize / 1024) - 1;
+
             reset_sega();
             run();
         }

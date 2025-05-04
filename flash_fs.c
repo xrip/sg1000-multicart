@@ -27,8 +27,8 @@
 // Doesn't really implement wear levelling (e.g. the fs_map) so not for heavy use but should be
 // fine for the intended use case.
 
-#define HW_FLASH_STORAGE_BASE  (1024 * 1024)
-#define MAGIC_8_BYTES "RHE!FS30"
+#define HW_FLASH_STORAGE_BASE  (1024 * 128)
+#define MAGIC_8_BYTES "RHE!FS31"
 
 #define NUM_FAT_SECTORS 30716   // 15megs / 512bytes = 30720, but we used 4 records for the header (8 bytes)
 #define NUM_FLASH_SECTORS 3840  // 15megs / 4096bytes = 3840
